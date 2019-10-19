@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Amg.GetOpt
 {
 #pragma warning disable S112 // General exceptions should never be thrown
-    internal class Option
+    internal class Option : IOption
     {
         private readonly object instance;
         public PropertyInfo Property { get; private set; }
@@ -36,7 +36,7 @@ namespace Amg.GetOpt
             Set(value, valueParser);
         }
 
-        public void Set(ref string? rest, ParserState args, IValueParser valueParser)
+        public void Set(ref string? appendedValue, ParserState args, IValueParser valueParser)
         {
             var defaultValue = DefaultValue();
 
@@ -46,10 +46,10 @@ namespace Amg.GetOpt
             }
             else
             {
-                if (rest != null)
+                if (appendedValue != null)
                 {
-                    Set(rest, valueParser);
-                    rest = null;
+                    Set(appendedValue, valueParser);
+                    appendedValue = null;
                 }
                 else
                 {

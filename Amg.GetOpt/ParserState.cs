@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Amg.GetOpt
 {
-    sealed class ParserState
+    public sealed class ParserState
     {
         private readonly ArraySegment<string> args;
         private int pos;

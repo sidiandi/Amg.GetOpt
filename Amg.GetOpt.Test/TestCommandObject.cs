@@ -28,6 +28,22 @@ namespace Amg.GetOpt.Test
 
         [Short("v"), Description("Enum option")]
         public Verbosity Verbosity { get; set; }
+
+        [Description("Say hello")]
+        public string Greet()
+        {
+            return (Name == null)
+                ? "Hello"
+                : $"Hello, {Name}";
+        }
+
+        [Description("Method that takes a string")]
+        public void TakesString(string value)
+        {
+            Value = value;
+        }
+
+        public string? Value { get; set; }
     }
 
     enum Verbosity

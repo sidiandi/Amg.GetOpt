@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Amg.GetOpt
 {
@@ -9,7 +10,7 @@ namespace Amg.GetOpt
     {
         private static readonly Serilog.ILogger Logger = Serilog.Log.Logger.ForContext(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly CommandProvider commandProvider;
+        private readonly ICommandProvider commandProvider;
         private readonly ValueParser valueParser = new ValueParser();
 
         ParserState state;
@@ -19,7 +20,7 @@ namespace Amg.GetOpt
 
         public IEnumerable<string> Operands => operands.Select(_ => _.Current);
 
-        public Parser(CommandProvider commandProvider)
+        public Parser(ICommandProvider commandProvider)
         {
             this.commandProvider = commandProvider;
             this.state = new ParserState(new string[] { });
@@ -54,6 +55,19 @@ namespace Amg.GetOpt
             }
         }
 
+        public async Task<object?[]> Run()
+        {
+            var results = new List<object?>();
+            var args = new ParserState(Operands.ToArray());
+            while (args.HasCurrent)
+            {
+                var name = args.Consume();
+                var command = Check(() => commandProvider.GetCommand(name));
+                results.Add(await command.Invoke(args, valueParser));
+            }
+            return results.ToArray();
+        }
+
         private void Operand()
         {
             operands.Add(state.Clone());
@@ -63,7 +77,7 @@ namespace Amg.GetOpt
         private bool ShortOption()
         {
             var p = Current.Split(new[] { shortOptionPrefix }, 2, StringSplitOptions.None);
-            if (p.Length > 1 && handleArgs)
+            if (p.Length > 1 && String.IsNullOrEmpty(p[0]) && handleArgs)
             {
                 state.Consume();
                 string? optionText = p[1];
@@ -73,7 +87,7 @@ namespace Amg.GetOpt
                     var keyValue = SplitFirstCharacter(optionText);
                     var name = keyValue[0];
                     var value = keyValue.Length > 1 ? keyValue[1] : null;
-                    var option = commandProvider.ShortGetOption(name);
+                    var option = Check(() => commandProvider.GetShortOption(name));
                     option.Set(ref value, state, valueParser);
                     optionText = value;
                 }
@@ -82,6 +96,20 @@ namespace Amg.GetOpt
             else
             {
                 return false;
+            }
+        }
+
+        T Check<T>(Func<T> f)=> Check(this.state, f);
+
+        internal static T Check<T>(ParserState args, Func<T> f)
+        {
+            try
+            {
+                return f();
+            }
+            catch (Exception e)
+            {
+                throw new CommandLineException(args, e.Message);
             }
         }
 
@@ -104,15 +132,15 @@ namespace Amg.GetOpt
         private bool LongOption()
         {
             var p = Current.Split(new[] { longOptionPrefix }, 2, StringSplitOptions.None);
-            if (p.Length > 1 && handleArgs)
+            if (p.Length > 1 && String.IsNullOrEmpty(p[0]) && handleArgs)
             {
                 state.Consume();
                 var keyValue = p[1].Split(new[] { "=" }, 2, StringSplitOptions.None);
                 var name = keyValue[0];
                 var value = keyValue.Length > 1 ? keyValue[1] : null;
 
-                var option = commandProvider.LongGetOption(name);
-                option.Set(value, state, valueParser);
+                var option = commandProvider.GetLongOption(name);
+                option.Set(ref value, state, valueParser);
                 return true;
             }
             else

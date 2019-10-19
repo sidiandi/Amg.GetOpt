@@ -2,7 +2,7 @@
 
 namespace Amg.GetOpt
 {
-    interface IValueParser
+    public interface IValueParser
     {
         public bool TryParse(ParserState args, Type toType, out object? value);
     }

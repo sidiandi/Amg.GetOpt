@@ -7,9 +7,14 @@ namespace Amg.GetOpt
     {
         public bool TryParse(ParserState args, Type toType, out object? value)
         {
+            var temp = args.Clone();
             string Consume()
             {
-                return args.Consume();
+                if (!temp.HasCurrent)
+                {
+                    throw new CommandLineException(args, "Value is missing.");
+                }
+                return temp.Consume();
             }
 
             try
@@ -39,7 +44,7 @@ namespace Amg.GetOpt
                 }
                 else if (toType.IsEnum)
                 {
-                    var enumName = Enum.GetNames(toType).FindByName(_ => _, Consume(), "values");
+                    var enumName = Enum.GetNames(toType).FindByName(_ => Parser.LongNameForCsharpIdentifier(_), Consume(), "values");
 
                     if (enumName == null)
                     {
@@ -56,7 +61,15 @@ namespace Amg.GetOpt
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"{args.Current.Quote()} is not a value of type {toType.Name}.", e);
+                if (e is CommandLineException)
+                {
+                    throw;
+                }
+                throw new CommandLineException(args, $"{args.Current.Quote()} is not a value of type {toType.Name}.", e);
+            }
+            finally
+            {
+                args.SetPos(temp);
             }
         }
     }
