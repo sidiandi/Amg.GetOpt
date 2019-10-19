@@ -165,8 +165,8 @@ namespace Amg.GetOpt
 
         string Current => state.Current;
 
-        const string longOptionPrefix = "--";
-        const string shortOptionPrefix = "-";
+        internal const string longOptionPrefix = "--";
+        internal const string shortOptionPrefix = "-";
 
         public static string LongNameForCsharpIdentifier(string memberName)
         {

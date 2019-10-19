@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Serilog;
 
 namespace Amg.GetOpt
@@ -41,6 +42,10 @@ namespace Amg.GetOpt
 
             public string Name => next.Name;
 
+            public string Syntax => next.Syntax;
+
+            public string Description => next.Description;
+
             public Task<object?> Invoke(ParserState args, IValueParser valueParser)
             {
                 Logger.Information("Invoke {command}", Name);
@@ -68,6 +73,10 @@ namespace Amg.GetOpt
 
             public string? Short => next.Short;
 
+            public string Syntax => next.Syntax;
+
+            public string Description => next.Description;
+
             public void Set(ref string? appendedValue, ParserState args, IValueParser valueParser)
             {
                 logger.Information("Set {option}", Long);
@@ -79,5 +88,8 @@ namespace Amg.GetOpt
         {
             return new Option(next.GetShortOption(optionName), logger);
         }
+
+        public IEnumerable<IOption> Options() => next.Options();
+        public IEnumerable<ICommand> Commands() => next.Commands();
     }
 }

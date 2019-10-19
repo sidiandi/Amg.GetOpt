@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using Amg.Extensions;
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -81,6 +83,23 @@ namespace Amg.GetOpt
         }
 
         public string Name { get; }
+
+        static string TypeSyntax(Type type)
+            => type == typeof(string)
+                ? String.Empty
+                : $": {Parser.LongNameForCsharpIdentifier(type.Name)}";
+
+        static string ParameterSyntax(ParameterInfo p)
+        {
+            var s = $"{Parser.LongNameForCsharpIdentifier(p.Name)}{TypeSyntax(p.ParameterType)}";
+            return p.HasDefaultValue 
+                ? s.Quote("[]")
+                : s.Quote("<>");
+        }
+
+        public string Syntax => $"{Name} {this.Method.GetParameters().Select(ParameterSyntax).Join(" ")}";
+
+        public string Description => Method.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
     }
 
 }

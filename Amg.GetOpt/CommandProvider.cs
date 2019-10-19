@@ -21,7 +21,7 @@ namespace Amg.GetOpt
             return Commands().FindByName(_ => _.Name, name, "commands");
         }
 
-        IEnumerable<Command> Commands()
+        public IEnumerable<ICommand> Commands()
         {
             return commandObject.GetType().GetMethods()
                 .Where(IsCommand)
@@ -33,7 +33,7 @@ namespace Amg.GetOpt
             return m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>() != null;
         }
 
-        IEnumerable<Option> Options()
+        public IEnumerable<IOption> Options()
         {
             return commandObject.GetType().GetProperties()
                 .Where(IsOption)

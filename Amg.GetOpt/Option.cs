@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Amg.Extensions;
+using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Amg.GetOpt
@@ -97,6 +99,32 @@ namespace Amg.GetOpt
         public string Long { get; }
 
         public string? Short => ShortAttribute.Get(Property);
+
+        string ShortSyntax => (Short == null ? String.Empty : $"{Parser.shortOptionPrefix}{Short}|");
+
+        string ValueSyntax
+        {
+            get
+            {
+                var type = Property.PropertyType;
+                if (type == typeof(bool))
+                {
+                    return String.Empty;
+                }
+                else if (type.IsEnum)
+                {
+                    return $"<{Enum.GetNames(type).Select(_ => Parser.LongNameForCsharpIdentifier(_)).Join("|")}>";
+                }
+                else
+                {
+                    return $"<{Parser.LongNameForCsharpIdentifier(Property.PropertyType.Name)}>";
+                }
+            }
+        }
+
+        public string Syntax => $"{ShortSyntax}{Parser.longOptionPrefix}{Long} {ValueSyntax}";
+
+        public string Description => Property.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
     }
 
 }

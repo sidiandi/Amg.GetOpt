@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Amg.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         /// <summary>
         /// Cut of the tail of a string if it is longer than maxLength
@@ -95,18 +95,6 @@ namespace Amg.Extensions
         }
 
         /// <summary>
-        /// Quote only if x contains whitespace.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        public static string QuoteIfRequired(this string x)
-        {
-            return x.Any(Char.IsWhiteSpace)
-                ? x.Quote()
-                : x;
-        }
-
-        /// <summary>
         /// Quotes a string.
         /// </summary>
         /// <param name="x"></param>
@@ -116,5 +104,14 @@ namespace Amg.Extensions
             return "\"" + x.Replace("\"", "\\\"") + "\"";
         }
 
+        /// <summary>
+        /// Quotes a string.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static string Quote(this string x, string quotes)
+        {
+            return quotes[0] + x.Replace("\"", "\\\"") + quotes[1];
+        }
     }
 }
