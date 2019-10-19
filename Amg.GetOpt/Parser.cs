@@ -1,133 +1,167 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Amg.GetOpt.Tokens;
-using Pidgin;
-using static Pidgin.Parser;
-using static Pidgin.Parser<Amg.GetOpt.Tokens.Token>;
+using System.Reflection;
 
 namespace Amg.GetOpt
 {
-    static internal class Parser
+    class Parser
     {
-        static Opt<T> WithOptions<T>(T value, IEnumerable<Option> options)
+        private static readonly Serilog.ILogger Logger = Serilog.Log.Logger.ForContext(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private readonly CommandProvider commandProvider;
+        private readonly ValueParser valueParser = new ValueParser();
+
+        ParserState state;
+        bool handleArgs = false;
+
+        readonly List<ParserState> operands = new List<ParserState>();
+
+        public IEnumerable<string> Operands => operands.Select(_ => _.Current);
+
+        public Parser(CommandProvider commandProvider)
         {
-            return new Opt<T>(value, options);
+            this.commandProvider = commandProvider;
+            this.state = new ParserState(new string[] { });
         }
 
-        static Opt<T> WithOptions<T, Y>(T value, IEnumerable<Opt<Y>> options)
+        public void Parse(string[] args)
         {
-            return new Opt<T>(value, options.SelectMany(_ => _.Options));
-        }
+            this.state = new ParserState(args);
+            handleArgs = true;
+            operands.Clear();
 
-        internal class Opt<T>
-        { 
-            public Opt(T value, IEnumerable<Option> options)
+            while (state.HasCurrent)
             {
-                Value = value;
-                Options = options;
+                Logger.Information("{state}", state);
+
+                if (OptionStop())
+                {
+                    // nothing
+                }
+                else if (LongOption())
+                {
+                    // nothing
+                }
+                else if (ShortOption())
+                {
+                    // nothing
+                }
+                else
+                {
+                    Operand();
+                }
             }
-
-            public IEnumerable<Option> Options { get; }
-            public T Value;
-
-            public override string ToString() => Value!.ToString();
         }
 
-        internal class Command
-        { 
-            public Command(Opt<Arg> name, IEnumerable<Opt<Arg>> args)
-            {
-                Name = name;
-                Args = args;
-            }
-
-            public Opt<Arg> Name { get; }
-            public IEnumerable<Opt<Arg>> Args { get; }
-        }
-
-        internal class Option
-        { }
-
-        
-        internal class LongOption: Option
+        private void Operand()
         {
-            public LongOption(Amg.GetOpt.Tokens.LongOption name, IEnumerable<Arg> args)
-            {
-                Name = name;
-                Args = args;
-            }
-
-            public Amg.GetOpt.Tokens.LongOption Name { get; }
-            public IEnumerable<Arg> Args { get; }
+            operands.Add(state.Clone());
+            state.Consume();
         }
 
-        internal class ShortOption : Option
+        private bool ShortOption()
         {
-            public ShortOption(Amg.GetOpt.Tokens.ShortOption name, IEnumerable<Arg> args)
+            var p = Current.Split(new[] { shortOptionPrefix }, 2, StringSplitOptions.None);
+            if (p.Length > 1 && handleArgs)
             {
-                Name = name;
-                Args = args;
-            }
+                state.Consume();
+                string? optionText = p[1];
 
-            public Amg.GetOpt.Tokens.ShortOption Name { get; }
-            public IEnumerable<Arg> Args { get; }
+                while (optionText != null)
+                {
+                    var keyValue = SplitFirstCharacter(optionText);
+                    var name = keyValue[0];
+                    var value = keyValue.Length > 1 ? keyValue[1] : null;
+                    var option = commandProvider.ShortGetOption(name);
+                    option.Set(ref value, state, valueParser);
+                    optionText = value;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-
-        internal class CommandLine
+        static string[] SplitFirstCharacter(string x)
         {
-            public CommandLine(IEnumerable<Option> options, IEnumerable<Command> commands)
+            if (x.Length == 0)
             {
-                Options = options;
-                Commands = commands;
+                return new string[] { };
             }
-
-            public IEnumerable<Option> Options { get; }
-            public IEnumerable<Command> Commands { get; }
+            else if (x.Length == 1)
+            {
+                return new string[] { x };
+            }
+            else
+            {
+                return new string[] { x.Substring(0, 1), x.Substring(1) };
+            }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1481:Unused local variables should be removed", Justification = "<Pending>")]
-        public static CommandLine Parse(string[] commandLineArguments, object instance)
+        private bool LongOption()
         {
-            var tokens = Amg.GetOpt.Tokens.Token.Tokenize(commandLineArguments);
-            var commandProvider = new CommandProvider(instance);
-
-            var arg = Any.OfType<Arg>();
-            Parser<Token, Opt<Arg>>? optionArg = null;
-
-            var longOption = Any.OfType<Amg.GetOpt.Tokens.LongOption>().Bind(_ => LongOptionParser(_, commandProvider));
-            var shortOption = Any.OfType<Amg.GetOpt.Tokens.ShortOption>().Bind(_ => ShortOptionParser(_, commandProvider));
-            var option = OneOf(Try(longOption), Try(shortOption));
-            var options = Try(option).Many();
-            optionArg = Map((arg, options) => WithOptions(arg, options), arg, options);
-            var optionArgs = Try(optionArg).Many();
-            var commandName = optionArg;
-
-            Parser<Token, Option> LongOptionParser(Amg.GetOpt.Tokens.LongOption optionName, CommandProvider commandProvider)
+            var p = Current.Split(new[] { longOptionPrefix }, 2, StringSplitOptions.None);
+            if (p.Length > 1 && handleArgs)
             {
-                var option = commandProvider.LongGetOption(optionName.Name);
-                return arg.Repeat(0).Map(values => (Option) new LongOption(optionName, values));
-            }
+                state.Consume();
+                var keyValue = p[1].Split(new[] { "=" }, 2, StringSplitOptions.None);
+                var name = keyValue[0];
+                var value = keyValue.Length > 1 ? keyValue[1] : null;
 
-            Parser<Token, Option> ShortOptionParser(Amg.GetOpt.Tokens.ShortOption optionName, CommandProvider commandProvider)
+                var option = commandProvider.LongGetOption(name);
+                option.Set(value, state, valueParser);
+                return true;
+            }
+            else
             {
-                var option = commandProvider.ShortGetOption(optionName.Name);
-                return arg.Repeat(0).Map(values => (Option) new ShortOption(optionName, values));
+                return false;
             }
-
-            Parser<Token, Command> CommandParser(Opt<Arg> commandName, CommandProvider commandProvider)
-            {
-                var command = commandProvider.GetCommand(commandName.Value.Value);
-                var parameters = command.Method.GetParameters();
-                return optionArg.Repeat(parameters.Length).Map(values => new Command(commandName, values));
-            }
-
-            var command = commandName.Bind(_ => CommandParser(_, commandProvider));
-            var commands = Try(command).Many();
-            var commandLine = Map((o,c) => new CommandLine(o, c), options, commands);
-
-            var ast = commandLine.Parse(tokens);
-            return ast.Value;
         }
+
+        private bool OptionStop()
+        {
+            if (Current.Equals(longOptionPrefix))
+            {
+                state.Consume();
+                handleArgs = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        string Current => state.Current;
+
+        const string longOptionPrefix = "--";
+        const string shortOptionPrefix = "-";
+
+        public static string LongNameForCsharpIdentifier(string memberName)
+        {
+            return new string(memberName.Take(1)
+                .Select(char.ToLower)
+                .Concat(memberName.Skip(1)
+                    .SelectMany(_ => char.IsUpper(_)
+                        ? new[]
+                        {
+                            '-',
+                            char.ToLower(_)
+                        }
+                        : new[]
+                        {
+                            _
+                        }))
+                .ToArray());
+        }
+
+        public static string LongName(PropertyInfo p)
+            => LongNameForCsharpIdentifier(p.Name);
+
+        public static string LongName(MethodInfo m)
+            => LongNameForCsharpIdentifier(m.Name);
     }
 }

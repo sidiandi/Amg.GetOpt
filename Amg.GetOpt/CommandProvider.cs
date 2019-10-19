@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Amg.GetOpt
 {
 
-    internal class CommandProvider
+    class CommandProvider
     {
         private readonly object commandObject;
 
@@ -15,8 +15,6 @@ namespace Amg.GetOpt
         {
             this.commandObject = commandObject;
         }
-
-
 
         public Command GetCommand(string name)
         {

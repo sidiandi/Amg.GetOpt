@@ -13,7 +13,7 @@ namespace Amg.GetOpt
         {
             this.instance = instance;
             this.Property = property;
-            Long = Parser2.LongName(property);
+            Long = Parser.LongName(property);
         }
 
         public void Set(string? value, ParserState args, IValueParser valueParser)

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Amg.Extensions;
+using System;
+using System.Linq;
 
 namespace Amg.GetOpt
 {
@@ -54,6 +56,20 @@ namespace Amg.GetOpt
         public void Reset()
         {
             pos = 0;
+        }
+
+        public override string ToString()
+        {
+            return args.Array
+                .Select((_, i) => Here(i) + $"[{i}] {_}")
+                .Join();
+        }
+
+        string Here(int i)
+        {
+            return i == pos + args.Offset
+                ? "=> "
+                : "   ";
         }
     }
 }
