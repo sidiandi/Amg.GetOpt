@@ -14,5 +14,6 @@ ShortOption = ShortOptionToken Arg?
 Command = OptionArg OptionArgs
 OptionArgs = OptionArg OptionArgs | ""
 OptionArg = Args Options
+Args = Arg Args | ""
 
 ````
