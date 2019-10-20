@@ -20,7 +20,7 @@ namespace example
             Console.WriteLine($"Hello, {Name}.");
         }
 
-        [Short("n"), Description("Name to greet")]
+        [Short('n'), Description("Name to greet")]
         public string Name { get; set; } = "world";
     }
 }

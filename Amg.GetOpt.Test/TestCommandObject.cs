@@ -20,13 +20,13 @@ namespace Amg.GetOpt.Test
         [Description("name to be greeted")]
         public string? Name { get; set; }
 
-        [Short("h"), Description("Show help")]
+        [Short('h'), Description("Show help")]
         public bool Help { get; set; }
 
         [Description("Option with long name")]
         public string? LongOption { get; set; }
 
-        [Short("v"), Description("Enum option")]
+        [Short('v'), Description("Enum option")]
         public Verbosity Verbosity { get; set; }
 
         [Description("Say hello")]

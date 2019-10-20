@@ -10,7 +10,7 @@ namespace Amg.GetOpt.Test
             // nothing here
         }
 
-        [Short("o"), Description("option")]
+        [Short('o'), Description("option")]
         public string? Option { get; set; }
     }
 
