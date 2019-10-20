@@ -27,15 +27,21 @@ Decorate your public properties with the [System.ComponentModel.Description](htt
         [Description("Greet the world.")]
         public void Greet()
         {
-            Console.WriteLine("Hello, {Name}.");
+            Console.WriteLine($"Hello, {Name}.");
         }
 
-        [Description("Name to greet")]
+        [Short("n"), Description("Name to greet")]
         public string Name { get; set; } = "world";
     }
 ```
 
-Output:
+Run the *greet* command:
+```
+>example.exe greet --name Alice
+Hello, Alice.
+```
+
+Get help:
 ```
 >example.exe
 usage: example [options] <command> [<args>]
@@ -48,7 +54,9 @@ greet : Greet the world.
 
 Options:
 
---name <string> : Name to greet
+-n|--name <string> : Name to greet
 ```
+
+
 
 See [the full example here](example/Program.cs).

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Amg.GetOpt;
+using System;
 using System.ComponentModel;
 
 namespace example
@@ -16,10 +17,10 @@ namespace example
         [Description("Greet the world.")]
         public void Greet()
         {
-            Console.WriteLine("Hello, {Name}.");
+            Console.WriteLine($"Hello, {Name}.");
         }
 
-        [Description("Name to greet")]
+        [Short("n"), Description("Name to greet")]
         public string Name { get; set; } = "world";
     }
 }
