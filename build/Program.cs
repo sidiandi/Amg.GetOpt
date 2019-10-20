@@ -349,8 +349,8 @@ namespace Build
         public virtual async Task Ci(string? message = null)
         {
             await Test();
-            await this.Git.GitTool.Run("add", ".");
-            await this.Git.GitTool.Run("commit", "-a", "-m", message);
+            await this.Git.GitTool.DoNotCheckExitCode().Run("add", ".");
+            await this.Git.GitTool.DoNotCheckExitCode().Run("commit", "-a", "-m", message);
             await Pack();
             await Push(@"C:\src\local-nuget-repository");
         }
