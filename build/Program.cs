@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Amg.FileSystem;
 using Amg.Extensions;
+using System.Text.RegularExpressions;
 
 namespace Build
 {
@@ -120,7 +121,7 @@ namespace Build
         {
             var version = (await Git.GetVersion()).NuGetVersionV2;
             await Build();
-            await DotnetTool.Run("pack", "--nologo",
+            var r = await DotnetTool.Run("pack", "--nologo",
                 SlnFile,
                 "--configuration", Configuration,
                 "--no-build",
@@ -129,13 +130,21 @@ namespace Build
                 "--output", PackagesDir.EnsureDirectoryExists()
                 );
 
-            return new[]
-            {
-                "Amg.Build",
-                "Amg.Build.Cake",
-                Amgbuild
-            }
-            .Select(name => PackagesDir.Combine($"{name}.{version}.nupkg"));
+            var createdPackages = Match(r.Output.SplitLines(), @"Successfully created package '([^']+)'\.");
+            return createdPackages;
+        }
+
+        IEnumerable<string> Match(IEnumerable<string> lines, string regexPattern)
+        {
+            return Match(lines, new Regex(regexPattern));
+        }
+
+        IEnumerable<string> Match(IEnumerable<string> lines, Regex regularExpression)
+        {
+            return lines
+                .Select(_ => regularExpression.Match(_))
+                .Where(_ => _.Success)
+                .Select(_ => _.Groups[1].Value);
         }
 
         [Once, Description("Commit pending changes and run end to end test")]

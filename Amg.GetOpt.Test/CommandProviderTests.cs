@@ -11,7 +11,7 @@ namespace Amg.GetOpt.Test
         public void DiscoverCommandsAndOptions()
         {
             var x = new ClassWithCommandAndOption();
-            var p = new CommandProvider(x);
+            var p = new CommandProviderImplementation(x);
             AssertCommands(p);
         }
 
@@ -30,7 +30,7 @@ namespace Amg.GetOpt.Test
         public void ComposeCommandsAndOptions()
         {
             var x = new ClassThatComposesCommandAndOption();
-            var p = new CommandProvider(x);
+            var p = new CommandProviderImplementation(x);
             AssertCommands(p);
         }
     }

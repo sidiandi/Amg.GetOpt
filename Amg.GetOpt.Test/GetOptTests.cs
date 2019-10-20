@@ -43,7 +43,7 @@ namespace Amg.GetOpt.Test
         public void Help()
         {
             var o = new TestCommandObject();
-            var p = new CommandProvider(o);
+            var p = new CommandProviderImplementation(o);
             var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
             Assert.That(helpMessage, Does.Contain("Run a command."));
             Assert.That(helpMessage, Does.Contain("Options:"));
@@ -54,7 +54,7 @@ namespace Amg.GetOpt.Test
         public void HelpNoCommands()
         {
             var o = new OnlyDefaultCommand();
-            var p = new CommandProvider(o);
+            var p = new CommandProviderImplementation(o);
             var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
             Assert.Pass(helpMessage);
         }

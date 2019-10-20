@@ -18,7 +18,12 @@ namespace Amg.GetOpt
     {
         public static int Run(string[] args, object commandObject)
         {
-            var commandProvider = new CommandProvider(commandObject);
+            var commandProvider = CommandProviderFactory.FromObject(commandObject);
+            return Run(args, commandProvider);
+        }
+
+        public static int Run(string[] args, ICommandProvider commandProvider)
+        {
             var parser = new Parser(commandProvider);
             parser.Parse(args);
             try

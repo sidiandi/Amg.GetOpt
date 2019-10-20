@@ -14,7 +14,7 @@ namespace Amg.GetOpt.Test
         {
             var args = new[] { "--name", "Alice", "-h", "--long-option=value", "hello", "-vdetailed", "--", "--not-an-option" };
             var o = new TestCommandObject();
-            var parser = new Parser(new CommandProvider(o).Log(Logger));
+            var parser = new Parser(new CommandProviderImplementation(o).Log(Logger));
             parser.Parse(args);
             Assert.That(true);
         }
@@ -24,7 +24,7 @@ namespace Amg.GetOpt.Test
         {
             var args = new[] { "add", "1", "--name", "Alice", "2", "subtract", "3", "2" };
             var o = new TestCommandObject();
-            var parser = new Parser((new CommandProvider(o)).Log(Logger));
+            var parser = new Parser((new CommandProviderImplementation(o)).Log(Logger));
             parser.Parse(args);
             var result = await parser.Run();
             Logger.Information("{@result}", result);
@@ -55,7 +55,7 @@ namespace Amg.GetOpt.Test
         static async Task<TestCommandObject> TestParse(string[] args)
         { 
             var o = new TestCommandObject();
-            var parser = new Parser((new CommandProvider(o)).Log(Logger));
+            var parser = new Parser((new CommandProviderImplementation(o)).Log(Logger));
             parser.Parse(args);
             var result = await parser.Run();
             Logger.Information("{@result}", result);
@@ -78,7 +78,7 @@ namespace Amg.GetOpt.Test
             try
             {
                 var o = new TestCommandObject();
-                var parser = new Parser((new CommandProvider(o)).Log(Logger));
+                var parser = new Parser((new CommandProviderImplementation(o)).Log(Logger));
                 parser.Parse(args);
                 parser.Run().Wait();
                 Assert.Fail();

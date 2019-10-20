@@ -5,12 +5,19 @@ using System.Reflection;
 
 namespace Amg.GetOpt
 {
+    public static class CommandProviderFactory
+    {
+        public static ICommandProvider FromObject(object objectWithAttributes)
+        {
+            return new CommandProviderImplementation(objectWithAttributes);
+        }
+    }
 
-    class CommandProvider : ICommandProvider
+    internal class CommandProviderImplementation : ICommandProvider
     {
         private readonly object commandObject;
 
-        public CommandProvider(object commandObject)
+        public CommandProviderImplementation(object commandObject)
         {
             this.commandObject = commandObject;
         }
@@ -19,7 +26,7 @@ namespace Amg.GetOpt
             .Where(IsCommandProvider)
             .Select(_ => _.GetValue(commandObject))
             .Where(_ => _ != null)
-            .Select(_ => new CommandProvider(_));
+            .Select(_ => new CommandProviderImplementation(_));
 
         static bool IsCommandProvider(PropertyInfo p)
             => p.GetCustomAttribute<CommandProviderAttribute>() != null;
