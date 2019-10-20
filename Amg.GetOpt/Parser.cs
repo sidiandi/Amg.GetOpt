@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Amg.GetOpt
 {
-    class Parser
+    public class Parser
     {
         private static readonly Serilog.ILogger Logger = Serilog.Log.Logger.ForContext(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
