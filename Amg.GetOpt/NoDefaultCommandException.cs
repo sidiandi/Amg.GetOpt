@@ -4,9 +4,7 @@ using System.Runtime.Serialization;
 namespace Amg.GetOpt
 {
     [Serializable]
-#pragma warning disable S3871 // Exception types should be "public"
-    internal class NoDefaultCommandException : Exception
-#pragma warning restore S3871 // Exception types should be "public"
+    public class NoDefaultCommandException : Exception
     {
         public NoDefaultCommandException()
         {

@@ -26,6 +26,8 @@ namespace Amg.GetOpt
             this.state = new ParserState(new string[] { });
         }
 
+        public bool IgnoreUnknown { get; set; } = false;
+
         public void Parse(string[] args)
         {
             this.state = new ParserState(args);
@@ -104,7 +106,23 @@ namespace Amg.GetOpt
                     var keyValue = SplitFirstCharacter(optionText);
                     var name = keyValue[0];
                     var value = keyValue.Length > 1 ? keyValue[1] : null;
-                    var option = Check(() => commandProvider.GetShortOption(name));
+
+                    IOption? option = null;
+                    try
+                    {
+                        option = commandProvider.GetShortOption(name);
+                    }
+                    catch (ArgumentException)
+                    {
+                        if (IgnoreUnknown)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
                     option.Set(ref value, state, valueParser);
                     optionText = value;
                 }
@@ -156,7 +174,22 @@ namespace Amg.GetOpt
                 var name = keyValue[0];
                 var value = keyValue.Length > 1 ? keyValue[1] : null;
 
-                var option = commandProvider.GetLongOption(name);
+                IOption? option = null;
+                try
+                {
+                    option = commandProvider.GetLongOption(name);
+                }
+                catch (ArgumentException)
+                {
+                    if (IgnoreUnknown)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 option.Set(ref value, state, valueParser);
                 return true;
             }
