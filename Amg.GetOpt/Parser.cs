@@ -181,7 +181,7 @@ namespace Amg.GetOpt
                 {
                     option = commandProvider.GetLongOption(name);
                 }
-                catch (ArgumentException)
+                catch (ArgumentException argumentException)
                 {
                     if (IgnoreUnknown)
                     {
@@ -189,7 +189,9 @@ namespace Amg.GetOpt
                     }
                     else
                     {
-                        throw;
+                        throw new CommandLineException(state,
+                            argumentException.Message,
+                            argumentException);
                     }
                 }
                 option.Set(ref value, state, valueParser);

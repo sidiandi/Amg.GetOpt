@@ -69,6 +69,7 @@ namespace Amg.GetOpt.Test
             Check(new[] { "-n" });
             Check(new[] { "--name" });
             Check(new[] { "command-does-not-exist" });
+            Check(new[] { "--option-does-not-exist" });
             Check(new[] { "add", "1" });
             Check(new[] { "add", "a", "b" });
         }

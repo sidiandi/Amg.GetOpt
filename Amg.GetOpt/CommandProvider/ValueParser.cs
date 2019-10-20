@@ -1,5 +1,6 @@
 ﻿using Amg.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace Amg.GetOpt
 {
@@ -7,6 +8,11 @@ namespace Amg.GetOpt
     {
         public object? Parse(ParserState args, Type toType)
         {
+            if (toType.IsArray)
+            {
+                return ParseArray(args, toType);
+            }
+
             var temp = args.Clone();
 
             string Consume()
@@ -56,6 +62,30 @@ namespace Amg.GetOpt
             {
                 args.SetPos(temp);
             }
+        }
+
+        public object? ParseArray(ParserState args, Type toType)
+        {
+            var temp = args.Clone();
+
+            var elementType = toType.GetElementType();
+
+            var items = new List<object?>();
+
+            while (temp.HasCurrent)
+            {
+                var item = Parse(temp, elementType);
+                items.Add(item);
+            }
+
+            args.SetPos(temp);
+
+            var a = Array.CreateInstance(elementType, items.Count);
+            for (int i=0;i<a.Length; ++i)
+            {
+                a.SetValue(items[i], i);
+            }
+            return a;
         }
     }
 }
