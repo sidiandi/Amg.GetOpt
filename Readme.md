@@ -1,19 +1,54 @@
 # Amg.GetOpt
 
-getopt compliant command line parser.
+Library for easy implementation of [getopt](https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html#Argument-Syntax) compliant command line interfaces.
 
-Grammar:
+## Usage
 
+Install package via nuget
 ````
-CommandLine = Options Commands
-Options = Option Options | ""
-Commands = Command Commands | ""
-Option = LongOption | ShortOption
-LongOption = LongOptionToken Arg?
-ShortOption = ShortOptionToken Arg?
-Command = OptionArg OptionArgs
-OptionArgs = OptionArg OptionArgs | ""
-OptionArg = Args Options
-Args = Arg Args | ""
-
+nuget install-package Amg.GetOpt
 ````
+
+Decorate your public methods with the [System.ComponentModel.Description] attribute to turn them into commands.
+
+Decorate your public properties with the [System.ComponentModel.Description] attribute to turn them into options.
+
+```
+    class Program
+    {
+        static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+
+        [Description("Add two numbers.")]
+        public int Add(int a, int b)
+        {
+            return a + b;
+        }
+
+        [Description("Greet the world.")]
+        public void Greet()
+        {
+            Console.WriteLine("Hello, {Name}.");
+        }
+
+        [Description("Name to greet")]
+        public string Name { get; set; } = "world";
+    }
+```
+
+Output:
+```
+>example.exe
+usage: example [options] <command> [<args>]
+Run a command.
+
+Commands:
+
+add <a: int32> <b: int32> : Add two numbers.
+greet : Greet the world.
+
+Options:
+
+--name <string> : Name to greet
+```
+
+See [the full example here](example/Program.cs).
