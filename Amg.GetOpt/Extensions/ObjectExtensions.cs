@@ -30,8 +30,13 @@ namespace Amg.Extensions
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static string SafeToString(this object x)
+        public static string SafeToString(this object? x)
         {
+            if (x == null)
+            {
+                return String.Empty;
+            }
+
             try
             {
                 return x.ToString();

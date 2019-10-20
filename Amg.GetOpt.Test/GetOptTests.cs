@@ -45,9 +45,9 @@ namespace Amg.GetOpt.Test
             var o = new TestCommandObject();
             var p = new CommandProvider(o);
             var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
-            Console.WriteLine(helpMessage);
             Assert.That(helpMessage, Does.Contain("Commands:"));
             Assert.That(helpMessage, Does.Contain("Options:"));
+            Assert.Pass(helpMessage);
             Assert.That(helpMessage, Is.EqualTo(@"Usage: testhost [options] [command] [arguments]...
 
 Commands:

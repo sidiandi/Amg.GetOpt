@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
 
@@ -21,11 +22,6 @@ namespace Amg.GetOpt
         {
             this.next = next;
             this.logger = logger;
-        }
-
-        public ICommand GetCommand(string name)
-        {
-            return new Command(next.GetCommand(name), logger);
         }
 
         class Command : ICommand
@@ -55,11 +51,6 @@ namespace Amg.GetOpt
             }
         }
 
-        public IOption GetLongOption(string optionName)
-        {
-            return new Option(next.GetLongOption(optionName), logger);
-        }
-
         class Option: IOption
         {
             private readonly IOption next;
@@ -86,12 +77,10 @@ namespace Amg.GetOpt
             }
         }
 
-        public IOption GetShortOption(string optionName)
-        {
-            return new Option(next.GetShortOption(optionName), logger);
-        }
+        public IEnumerable<IOption> Options() => next.Options()
+            .Select(_ => new Option(_, logger));
 
-        public IEnumerable<IOption> Options() => next.Options();
-        public IEnumerable<ICommand> Commands() => next.Commands();
+        public IEnumerable<ICommand> Commands() => next.Commands()
+            .Select(_ => new Command(_, logger));
     }
 }

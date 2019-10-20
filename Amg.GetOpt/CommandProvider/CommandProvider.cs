@@ -1,5 +1,4 @@
-﻿using Amg.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -14,11 +13,6 @@ namespace Amg.GetOpt
         public CommandProvider(object commandObject)
         {
             this.commandObject = commandObject;
-        }
-
-        public ICommand GetCommand(string name)
-        {
-            return Commands().FindByName(_ => _.Name, name, "commands");
         }
 
         IEnumerable<ICommandProvider> CommandProviders => commandObject.GetType().GetProperties()
@@ -54,18 +48,6 @@ namespace Amg.GetOpt
         static bool IsOption(PropertyInfo p)
         {
             return p.GetCustomAttribute<DescriptionAttribute>() != null;
-        }
-
-        public IOption GetLongOption(string optionName)
-        {
-            return Options().FindByName(_ => _.Long, optionName, "options");
-        }
-
-        public IOption GetShortOption(string optionName)
-        {
-            return Options()
-                .Where(_ => _.Short != null)
-                .FindByName(_ => _.Short, optionName, "options");
         }
     }
 }

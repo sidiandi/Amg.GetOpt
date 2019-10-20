@@ -44,6 +44,12 @@ namespace Amg.GetOpt.Test
         }
 
         public string? Value { get; set; }
+
+        [Default, Description("do nothing")]
+        public void Default()
+        {
+            // nothing
+        }
     }
 
     enum Verbosity
