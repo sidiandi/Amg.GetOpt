@@ -8,9 +8,9 @@ namespace Amg.GetOpt
     {
         public string ShortName { get; }
 
-        public ShortAttribute(string shortName)
+        public ShortAttribute(char shortName)
         {
-            this.ShortName = shortName;
+            this.ShortName = new string(shortName, 1);
         }
 
         public static string? Get(PropertyInfo p)
