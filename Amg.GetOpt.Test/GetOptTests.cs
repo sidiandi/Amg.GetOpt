@@ -45,23 +45,18 @@ namespace Amg.GetOpt.Test
             var o = new TestCommandObject();
             var p = new CommandProvider(o);
             var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
-            Assert.That(helpMessage, Does.Contain("Commands:"));
+            Assert.That(helpMessage, Does.Contain("Run a command."));
             Assert.That(helpMessage, Does.Contain("Options:"));
             Assert.Pass(helpMessage);
-            Assert.That(helpMessage, Is.EqualTo(@"Usage: testhost [options] [command] [arguments]...
+        }
 
-Commands:
-add <a: int32> <b: int32>      add two numbers           
-greet                          Say hello                 
-subtract <a: int32> <b: int32> subtract two numbers      
-takes-string <value>           Method that takes a string
-
-Options:
--h|--help                             Show help            
---long-option <string>                Option with long name
---name <string>                       name to be greeted   
--v|--verbosity <quiet|error|detailed> Enum option          
-"));
+        [Test]
+        public void HelpNoCommands()
+        {
+            var o = new OnlyDefaultCommand();
+            var p = new CommandProvider(o);
+            var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
+            Assert.Pass(helpMessage);
         }
 
         [Test]
@@ -71,18 +66,6 @@ Options:
             var exitCode = GetOpt.Run(new string[] { }, o);
             Assert.AreEqual(ExitCode.Success, exitCode);
             Assert.That(o.done);
-        }
-
-        [Test]
-        public void NoDefaultCommandPrintsHelp()
-        {
-            var o = new TestCommandObject();
-            var (output, error) = CaptureOutput(() =>
-            {
-                var exitCode = GetOpt.Run(new string[] { }, o);
-                Assert.That(exitCode, Is.EqualTo(ExitCode.HelpDisplayed));
-            });
-            Assert.That(output.Contains("Usage:"));
         }
     }
 }

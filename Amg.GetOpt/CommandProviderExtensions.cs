@@ -21,5 +21,22 @@ namespace Amg.GetOpt
                 .Where(_ => _.Short != null)
                 .FindByName(_ => _.Short, optionName, "options");
         }
+
+        public static ICommand? DefaultCommand(this ICommandProvider commandProvider)
+        {
+            var c = commandProvider.Commands().ToList();
+            if (c.Count == 0)
+            {
+                return null;
+            }
+            else if (c.Count == 1)
+            {
+                return c[0];
+            }
+            else
+            {
+                return c.FirstOrDefault(_ => _.IsDefault);
+            }
+        }
     }
 }

@@ -12,22 +12,35 @@ namespace Amg.GetOpt
     {
         public static void PrintHelpMessage(TextWriter outputWriter, ICommandProvider commandProvider)
         {
-            var c = commandProvider.Commands().OrderBy(_ => _.Name);
+            var c = commandProvider.Commands();
+            var o = commandProvider.Options().OrderBy(_ => _.Long);
 
             var name = Assembly.GetEntryAssembly().GetName().Name;
 
             var w = Wrap(outputWriter);
 
-            w.WriteLine($"Usage: {name} [options] <command> [<args>]");
-            if (c.Any())
+            var defaultCommand = commandProvider.DefaultCommand();
+
+            var optionsString = o.Any() ? " [options]" : String.Empty;
+
+            if (defaultCommand != null)
             {
+                w.WriteLine($"usage: {name}{optionsString}");
+                w.WriteLine(defaultCommand.Description);
+                w.WriteLine();
+                c = c.Except(new[] { defaultCommand }).OrderBy(_ => _.Name);
+            }
+
+            if (c.Count() > 1)
+            {
+                w.WriteLine($"usage: {name}{optionsString} <command> [<args>]");
+                w.WriteLine("Run a command.");
                 w.WriteLine();
                 w.WriteLine("Commands:");
                 w.WriteLine();
-                Format(c.Select(_ => new { _.Syntax , _.Description })).Write(w);
+                Format(c.Select(_ => new { _.Syntax, _.Description })).Write(w);
             }
 
-            var o = commandProvider.Options().OrderBy(_ => _.Long);
             if (o.Any())
             {
                 w.WriteLine();
