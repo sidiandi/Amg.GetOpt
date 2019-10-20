@@ -9,9 +9,9 @@ Install package via nuget
 nuget install-package Amg.GetOpt
 ````
 
-Decorate your public methods with the [System.ComponentModel.Description] attribute to turn them into commands.
+Decorate your public methods with the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute?view=netcore-3.0) attribute to turn them into commands.
 
-Decorate your public properties with the [System.ComponentModel.Description] attribute to turn them into options.
+Decorate your public properties with the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute?view=netcore-3.0) attribute to turn them into options.
 
 ```
     class Program
