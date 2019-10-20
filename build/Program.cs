@@ -154,116 +154,11 @@ namespace Build
             await git.Run("add", ".");
             await git.Run("commit", "-m", message, "-a");
             await Test();
-            await EndToEndTest();
             await Install();
             return (await this.Git.GetVersion()).NuGetVersionV2;
         }
 
         string TargetFramework => "netcoreapp3.0";
-
-        [Once, Description("Complete test with .cmd bootstrapper file")]
-        public virtual async Task EndToEndTest()
-        {
-            await Git.EnsureNoPendingChanges();
-            await Pack();
-
-            var testDir = OutDir.Combine("EndToEndTest");
-            await testDir.EnsureNotExists();
-            testDir.EnsureDirectoryExists();
-
-            var nugetConfigFile = testDir.Combine("nuget.config");
-            await CreateNugetConfigFile(nugetConfigFile, PackagesDir);
-            await Nuget
-                .WithWorkingDirectory(testDir)
-                .Run("source");
-
-            // create script
-            var name = "end-to-end-test-of-build";
-            var amgbuildTool = (await Dotnet.Tool())
-                .WithWorkingDirectory(testDir)
-                .WithArguments(Root.Combine("src", Amgbuild, "bin", Configuration, TargetFramework, "amgbuild.dll"));
-
-            await amgbuildTool.Run("new", name);
-
-            var script = testDir.Combine($"{name}.cmd");
-
-            foreach (var d in new[] { "obj", "bin" })
-            {
-                await testDir.Combine("build", d).EnsureNotExists();
-            }
-
-            var version = await Git.GetVersion();
-
-            var build = Tools.Default.WithFileName(script).DoNotCheckExitCode()
-                .WithEnvironment(new Dictionary<string, string> { { "AmgBuildVersion", version.NuGetVersion } })
-                .WithArguments("--summary", "-vd")
-                ;
-
-            void AssertRebuild(IToolResult result)
-            {
-                if (!result.Output.Contains("INF|Rebuild"))
-                {
-                    throw new InvalidOperationException("Script was not rebuild.");
-                }
-            }
-
-            void AssertExitCode(IToolResult result, int expectedExitCode)
-            {
-                if (!result.ExitCode.Equals(expectedExitCode))
-                {
-                    throw new InvalidOperationException($"Exit code expected: {expectedExitCode}. Actual: {result.ExitCode}");
-                }
-            }
-
-            IDisposable AssertRuntime()
-            {
-                var s = Stopwatch.StartNew();
-                return OnDispose(new Action(() => Logger.Information("Runtime: {runtime}", s.Elapsed)));
-            }
-
-            async Task ScriptRuns()
-            {
-                using (AssertRuntime())
-                {
-                    var result = await build.Run();
-                    AssertExitCode(result, 0);
-                    if (!result.Output.Contains(version.NuGetVersionV2))
-                    {
-                        throw new InvalidOperationException();
-                    }
-                    if (!String.IsNullOrEmpty(result.Error))
-                    {
-                        throw new InvalidOperationException(result.Error);
-                    }
-                }
-            }
-
-            async Task WhenSourceFileTimestampIsChangedScriptRebuilds()
-            {
-                using (AssertRuntime())
-                {
-                    var outdated = DateTime.UtcNow.AddDays(-1);
-                    var sourceFile = testDir.Combine(name, "Program.cs");
-                    new FileInfo(sourceFile).LastWriteTimeUtc = outdated;
-                    var result = await build.Run();
-                    AssertExitCode(result, 0);
-                    AssertRebuild(result);
-                }
-            }
-
-            async Task HelpIsDisplayed()
-            {
-                using (AssertRuntime())
-                {
-                    var result = await build.Run("--help");
-                    AssertExitCode(result, 3);
-                }
-            }
-
-            await ScriptRuns();
-            await WhenSourceFileTimestampIsChangedScriptRebuilds();
-            await HelpIsDisplayed();
-        }
 
         static IDisposable OnDispose(Action a) => new OnDisposeAction(a);
 
@@ -332,7 +227,7 @@ namespace Build
         protected virtual async Task<IEnumerable<string>> Push(string nugetPushSource)
         {
             await Git.EnsureNoPendingChanges();
-            await Task.WhenAll(Test(), Pack(), EndToEndTest());
+            await Task.WhenAll(Test(), Pack());
             var nupkgFiles = await Pack();
             var push = Nuget.WithArguments("push", "-NonInteractive");
 
