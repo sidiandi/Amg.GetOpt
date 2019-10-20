@@ -46,6 +46,8 @@ namespace Amg.GetOpt
 
             public string Description => next.Description;
 
+            public bool IsDefault => next.IsDefault;
+
             public Task<object?> Invoke(ParserState args, IValueParser valueParser)
             {
                 Logger.Information("Invoke {command}", Name);

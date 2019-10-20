@@ -59,11 +59,28 @@ namespace Amg.GetOpt
         {
             var results = new List<object?>();
             var args = new ParserState(Operands.ToArray());
-            while (args.HasCurrent)
+
+
+            if (!args.HasCurrent)
             {
-                var name = args.Consume();
-                var command = Check(() => commandProvider.GetCommand(name));
-                results.Add(await command.Invoke(args, valueParser));
+                var defaultCommand = commandProvider.Commands().FirstOrDefault(_ => _.IsDefault);
+                if (defaultCommand == null)
+                {
+                    throw new NoDefaultCommandException();
+                }
+                else
+                {
+                    results.Add(await defaultCommand.Invoke(args, valueParser));
+                }
+            }
+            else
+            {
+                while (args.HasCurrent)
+                {
+                    var name = args.Consume();
+                    var command = Check(() => commandProvider.GetCommand(name));
+                    results.Add(await command.Invoke(args, valueParser));
+                }
             }
             return results.ToArray();
         }

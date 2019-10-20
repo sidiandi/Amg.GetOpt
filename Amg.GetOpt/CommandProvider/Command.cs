@@ -1,4 +1,5 @@
 ﻿using Amg.Extensions;
+using Amg.GetOpt.Extensions;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -100,6 +101,8 @@ namespace Amg.GetOpt
         public string Syntax => $"{Name} {this.Method.GetParameters().Select(ParameterSyntax).Join(" ")}";
 
         public string Description => Method.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
+
+        public bool IsDefault => this.Method.Has<DefaultAttribute>();
     }
 
 }

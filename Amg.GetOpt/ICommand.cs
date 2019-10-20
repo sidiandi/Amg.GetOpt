@@ -8,5 +8,7 @@ namespace Amg.GetOpt
         Task<object?> Invoke(ParserState args, IValueParser valueParser);
         string Syntax { get; }
         string Description { get; }
+
+        bool IsDefault { get; }
     }
 }

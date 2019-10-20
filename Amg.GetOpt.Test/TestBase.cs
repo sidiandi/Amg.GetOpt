@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Amg
@@ -32,6 +33,27 @@ namespace Amg
             var stopwatch = Stopwatch.StartNew();
             a().Wait();
             return stopwatch.Elapsed;
+        }
+
+        public (string output, string error) CaptureOutput(Action action)
+        {
+            var originalOut = Console.Out;
+            var originalError = Console.Error;
+            var captureOut = new StringWriter();
+            var captureError = new StringWriter();
+            try
+            {
+                Console.SetOut(captureOut);
+                Console.SetError(captureError);
+                action();
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetError(originalError);
+            }
+
+            return (captureOut.ToString(), captureError.ToString());
         }
     }
 }

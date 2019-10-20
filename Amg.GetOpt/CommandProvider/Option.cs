@@ -5,7 +5,6 @@ using System.Reflection;
 
 namespace Amg.GetOpt
 {
-#pragma warning disable S112 // General exceptions should never be thrown
     internal class Option : IOption
     {
         private readonly object instance;
@@ -32,7 +31,7 @@ namespace Amg.GetOpt
 
             if (value == null)
             {
-                throw new Exception("no value provided");
+                throw new CommandLineException(args, $"Value is missing for {this}.");
             }
 
             Set(value, valueParser);
@@ -73,7 +72,7 @@ namespace Amg.GetOpt
             }
             else
             {
-                throw new Exception("cannot parse");
+                throw new CommandLineException(args, $"Cannot read value for {this}: {value}");
             }
         }
 
@@ -125,6 +124,9 @@ namespace Amg.GetOpt
         public string Syntax => $"{ShortSyntax}{Parser.longOptionPrefix}{Long} {ValueSyntax}";
 
         public string Description => Property.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
+
+        public override string ToString()
+            => $"{Parser.longOptionPrefix}{Long}";
     }
 
 }

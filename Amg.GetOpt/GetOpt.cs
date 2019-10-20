@@ -5,26 +5,54 @@ using System.Runtime.CompilerServices;
 
 namespace Amg.GetOpt
 {
+    public static class ExitCode
+    {
+        public const int Success = 0;
+        public const int UnknownError = 1;
+        public const int HelpDisplayed = 3;
+        public const int CommandLineError = 4;
+        public const int CommandFailed = 5;
+    }
+
     public static class GetOpt
     {
         public static int Run(string[] args, object commandObject)
         {
-            var p = new Parser(new CommandProvider(commandObject));
-            p.Parse(args);
+            var commandProvider = new CommandProvider(commandObject);
+            var parser = new Parser(commandProvider);
+            parser.Parse(args);
             try
             {
-                var result = p.Run().Result;
+                var result = parser.Run().Result;
                 foreach (var i in result)
                 {
                     Console.WriteLine(i);
                 }
             }
-            catch (Exception e)
+            catch (AggregateException aex)
             {
-                Console.Error.WriteLine(e);
-                return -1;
+                int exitCode = ExitCode.Success;
+
+                aex.Handle(exception =>
+                {
+                    if (exception is NoDefaultCommandException)
+                    {
+                        Help.PrintHelpMessage(Console.Out, commandProvider);
+                        exitCode = ExitCode.HelpDisplayed;
+                        return true;
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine(exception);
+                        exitCode = ExitCode.UnknownError;
+                        return true;
+                    }
+                });
+
+                return exitCode;
             }
-            return 0;
+
+            return ExitCode.Success;
         }
     }
 }

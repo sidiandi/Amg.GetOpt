@@ -5,7 +5,7 @@ using System;
 namespace Amg.GetOpt.Test
 {
     [TestFixture]
-    class GetOptTests
+    class GetOptTests : TestBase
     {
         [Test]
         public void Run()
@@ -62,6 +62,27 @@ Options:
 --name <string>                       name to be greeted   
 -v|--verbosity <quiet|error|detailed> Enum option          
 "));
+        }
+
+        [Test]
+        public void DefaultCommand()
+        {
+            var o = new WithDefaultCommand();
+            var exitCode = GetOpt.Run(new string[] { }, o);
+            Assert.AreEqual(ExitCode.Success, exitCode);
+            Assert.That(o.done);
+        }
+
+        [Test]
+        public void NoDefaultCommandPrintsHelp()
+        {
+            var o = new TestCommandObject();
+            var (output, error) = CaptureOutput(() =>
+            {
+                var exitCode = GetOpt.Run(new string[] { }, o);
+                Assert.That(exitCode, Is.EqualTo(ExitCode.HelpDisplayed));
+            });
+            Assert.That(output.Contains("Usage:"));
         }
     }
 }
