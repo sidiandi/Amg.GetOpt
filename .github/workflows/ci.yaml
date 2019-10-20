@@ -19,3 +19,4 @@ jobs:
 
     - name: Push generated package to GitHub registry
       run: nuget push .\out\Release\packages\*.nupkg -Source "GPR" -SkipDuplicate
+
