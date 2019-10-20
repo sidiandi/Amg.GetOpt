@@ -5,7 +5,7 @@ namespace Amg.Extensions
     /// <summary>
     /// Something that can be written to a TextWriter
     /// </summary>
-    public interface IWritable
+    internal interface IWritable
     {
         /// <summary>
         /// Write the object to a text writer.

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Serilog;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,11 @@ namespace Amg.GetOpt
         public static ICommandProvider FromObject(object objectWithAttributes)
         {
             return new CommandProviderImplementation(objectWithAttributes);
+        }
+
+        public static ICommandProvider Log(this ICommandProvider next, ILogger logger)
+        {
+            return new LoggingCommandProvider(next, logger);
         }
     }
 

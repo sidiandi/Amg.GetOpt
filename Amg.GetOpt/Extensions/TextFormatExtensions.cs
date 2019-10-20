@@ -8,7 +8,7 @@ namespace Amg.Extensions
     /// <summary>
     /// Extensions for formatted text output
     /// </summary>
-    public static class TextFormatExtensions
+    internal static class TextFormatExtensions
     {
         public static TextWriter Dump(this TextWriter w, object x)
         {

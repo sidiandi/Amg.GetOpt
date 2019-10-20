@@ -5,14 +5,6 @@ using Serilog;
 
 namespace Amg.GetOpt
 {
-    public static class LoggingCommandProviderExtensions
-    { 
-        public static ICommandProvider Log(this ICommandProvider next, ILogger logger)
-        {
-            return new LoggingCommandProvider(next, logger);
-        }
-    }
-
     class LoggingCommandProvider : ICommandProvider
     {
         private readonly ICommandProvider next;
