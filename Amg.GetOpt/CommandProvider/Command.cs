@@ -35,16 +35,7 @@ namespace Amg.GetOpt
                     }
                 }
 
-                var temp = args.Clone();
-                if (valueParser.TryParse(temp, parameter.ParameterType, out var value))
-                {
-                    args.SetPos(temp);
-                    return value;
-                }
-                else
-                {
-                    throw new CommandLineException(args, $"Argument {parameter.Name} of command {this.Name} has value {args.Current}. It cannot be interpreted as type {parameter.ParameterType}.");
-                }
+                return valueParser.Parse(args, parameter.ParameterType);
             }
 
             var parameters = Method.GetParameters().Select(Get).ToArray();

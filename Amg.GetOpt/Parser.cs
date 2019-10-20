@@ -112,7 +112,7 @@ namespace Amg.GetOpt
                     {
                         option = commandProvider.GetShortOption(name);
                     }
-                    catch (ArgumentException)
+                    catch (ArgumentException argumentException)
                     {
                         if (IgnoreUnknown)
                         {
@@ -120,7 +120,9 @@ namespace Amg.GetOpt
                         }
                         else
                         {
-                            throw;
+                            throw new CommandLineException(state,  
+                                argumentException.Message,
+                                argumentException);
                         }
                     }
                     option.Set(ref value, state, valueParser);

@@ -66,14 +66,8 @@ namespace Amg.GetOpt
 
         void Set(ParserState args, IValueParser valueParser)
         {
-            if (valueParser.TryParse(args, Property.PropertyType, out var value))
-            {
-                Property.SetValue(this.instance, value);
-            }
-            else
-            {
-                throw new CommandLineException(args, $"Cannot read value for {this}: {value}");
-            }
+            var value = valueParser.Parse(args, Property.PropertyType);
+            Property.SetValue(this.instance, value);
         }
 
         string? DefaultValue()
