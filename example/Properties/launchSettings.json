@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "example": {
+      "commandName": "Project",
+      "commandLineArgs": "gre --n Alice"
+    }
+  }
+}
