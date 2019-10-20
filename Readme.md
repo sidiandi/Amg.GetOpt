@@ -13,7 +13,7 @@ Decorate your public methods with the [System.ComponentModel.Description](https:
 
 Decorate your public properties with the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute?view=netcore-3.0) attribute to turn them into options.
 
-```
+```csharp
     class Program
     {
         static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
