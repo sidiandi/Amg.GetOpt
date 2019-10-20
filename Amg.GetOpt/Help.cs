@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Amg.GetOpt
 {
-    static class Help
+    public static class Help
     {
         public static void PrintHelpMessage(TextWriter outputWriter, ICommandProvider commandProvider)
         {
