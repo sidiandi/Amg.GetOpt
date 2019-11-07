@@ -430,5 +430,31 @@ namespace Amg.Extensions
             }
             return -1;
         }
+
+        public static IEnumerable<T> Distinct<T,Y>(this IEnumerable<T> e, Func<T, Y> map)
+        {
+            return e.Distinct(CompareBy(map));
+        }
+
+        public static IEqualityComparer<T> CompareBy<T,Y>(Func<T,Y> map)
+        {
+            return new CompareByComparer<T, Y>(map);
+        }
+
+        class CompareByComparer<T, Y> : IEqualityComparer<T>
+        {
+            private readonly Func<T, Y> map;
+            
+            public CompareByComparer(Func<T, Y> map)
+            {
+                this.map = map;
+            }
+
+            public bool Equals(T x, T y)
+                => object.Equals(map(x), map(y));
+
+            public int GetHashCode(T obj) => map(obj)!.GetHashCode();
+        }
+
     }
 }

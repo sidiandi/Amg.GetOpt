@@ -42,9 +42,10 @@ namespace Amg.GetOpt.Test
         [Test]
         public void Help()
         {
-            var o = new TestCommandObject();
+            var o = new WithStandardOptions(new TestCommandObject());
             var p = new CommandProviderImplementation(o);
             var helpMessage = TextFormatExtensions.GetWritable(_ => Amg.GetOpt.Help.PrintHelpMessage(_, p)).ToString();
+            Console.WriteLine(helpMessage);
             Assert.That(helpMessage, Does.Contain("Run a command."));
             Assert.That(helpMessage, Does.Contain("Options:"));
             Assert.Pass(helpMessage);
@@ -63,9 +64,48 @@ namespace Amg.GetOpt.Test
         public void DefaultCommand()
         {
             var o = new WithDefaultCommand();
-            var exitCode = GetOpt.Run(new string[] { }, o);
+            var exitCode = GetOpt.Run(new string[] { "1", "1" }, o);
             Assert.AreEqual(ExitCode.Success, exitCode);
-            Assert.That(o.done);
+            Assert.That(o.result, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void HelpForDefaultCommand()
+        {
+            var o = new WithDefaultCommand();
+            var (output, error) = CaptureOutput(() =>
+             {
+                 var exitCode = GetOpt.Run(new string[] { "-h" }, o);
+                 Assert.AreEqual(ExitCode.HelpDisplayed, exitCode);
+             });
+            Console.WriteLine(output);
+            Assert.That(!output.Contains("do-something"));
+        }
+
+        [Test]
+        public void HelpForDefaultCommandNoParameters()
+        {
+            var o = new WithDefaultCommandNoParameters();
+            var (output, error) = CaptureOutput(() =>
+            {
+                var exitCode = GetOpt.Run(new string[] { "-h" }, o);
+                Assert.AreEqual(ExitCode.HelpDisplayed, exitCode);
+            });
+            Console.WriteLine(output);
+            Assert.That(!output.Contains("do-something"));
+        }
+
+        [Test]
+        public void DefaultCommandWithoutParameters()
+        {
+            var o = new WithDefaultCommandNoParameters();
+            int exitCode = 0;
+            var (output, error) = CaptureOutput(() =>
+            {
+                exitCode = GetOpt.Run(new string[] { "1", "1" }, o);
+            });
+            Console.WriteLine(error);
+            Assert.AreEqual(ExitCode.CommandLineError, exitCode);
         }
     }
 }

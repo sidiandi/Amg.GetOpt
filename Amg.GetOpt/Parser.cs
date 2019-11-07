@@ -16,6 +16,8 @@ namespace Amg.GetOpt
         ParserState state;
         bool handleArgs = false;
 
+        public ICommandProvider CommandProvider => commandProvider;
+
         readonly List<ParserState> operands = new List<ParserState>();
 
         public IEnumerable<string> Operands => operands.Select(_ => _.Current);
@@ -57,6 +59,8 @@ namespace Amg.GetOpt
             }
         }
 
+        ICommand DefaultCommand => commandProvider.Commands.FirstOrDefault(_ => _.IsDefault);
+
         public async Task<object?[]> Run()
         {
             var results = new List<object?>();
@@ -65,7 +69,7 @@ namespace Amg.GetOpt
 
             if (!args.HasCurrent)
             {
-                var defaultCommand = commandProvider.Commands().FirstOrDefault(_ => _.IsDefault);
+                var defaultCommand = DefaultCommand;
                 if (defaultCommand == null)
                 {
                     throw new NoDefaultCommandException();
@@ -79,9 +83,40 @@ namespace Amg.GetOpt
             {
                 while (args.HasCurrent)
                 {
-                    var name = args.Consume();
-                    var command = Check(() => commandProvider.GetCommand(name));
-                    results.Add(await command.Invoke(args, valueParser));
+                    var defaultCommand = DefaultCommand;
+                    if (defaultCommand == null)
+                    {
+                        var commandName = args.Current;
+                        var command = commandProvider.GetCommand(commandName);
+                        args.Consume();
+                        results.Add(await command.Invoke(args, valueParser));
+                    }
+                    else
+                    {
+                        // command found?
+                            // execute
+                        // else
+                            // execute default command
+                            // check that is consumes arguments to avoid endless loop
+
+                        var commandName = args.Current;
+                        var command = commandProvider.TryGetCommand(commandName);
+                        if (command is { })
+                        {
+                            args.Consume();
+                            results.Add(await command.Invoke(args, valueParser));
+                        }
+                        else
+                        {
+                            var tempArgs = args.Clone();
+                            results.Add(await defaultCommand.Invoke(args, valueParser));
+                            if (tempArgs.Equals(args))
+                            {
+                                throw new CommandLineException(args, "unexpected operands");
+                            }
+                        }
+                    }
+
                 }
             }
             return results.ToArray();

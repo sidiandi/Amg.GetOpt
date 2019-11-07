@@ -12,8 +12,8 @@ namespace Amg.GetOpt.Test
         [Test]
         public void Parse()
         {
-            var args = new[] { "--name", "Alice", "-h", "--long-option=value", "hello", "-vdetailed", "--", "--not-an-option" };
-            var o = new TestCommandObject();
+            var args = new[] { "--name", "Alice", "-h", "--long-option=value", "hello", "-vq", "--", "--not-an-option" };
+            var o = new WithStandardOptions(new TestCommandObject());
             var parser = new Parser(new CommandProviderImplementation(o).Log(Logger));
             parser.Parse(args);
             Assert.That(true);
@@ -34,15 +34,15 @@ namespace Amg.GetOpt.Test
         [Test]
         public async Task LongOptionWithEqualSign()
         {
-            var o = await TestParse(new[] { "--verbosity=detailed" });
-            Assert.That(o.Verbosity, Is.EqualTo(Verbosity.Detailed));
+            var o = await TestParse(new[] { "--fruit=apple" });
+            Assert.That(o.Fruit, Is.EqualTo(Fruit.Apple));
         }
 
         [Test]
         public async Task LongOptionWithSeparateValue()
         {
-            var o = await TestParse(new[] { "--verbosity", "detailed" });
-            Assert.That(o.Verbosity, Is.EqualTo(Verbosity.Detailed));
+            var o = await TestParse(new[] { "--fruit", "o" });
+            Assert.That(o.Fruit, Is.EqualTo(Fruit.Orange));
         }
 
         [Test]

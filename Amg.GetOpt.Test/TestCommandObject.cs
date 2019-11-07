@@ -26,8 +26,8 @@ namespace Amg.GetOpt.Test
         [Description("Option with long name")]
         public string? LongOption { get; set; }
 
-        [Short('v'), Description("Enum option")]
-        public Verbosity Verbosity { get; set; }
+        [Short('o'), Description("Enum option")]
+        public Fruit Fruit { get; set; }
 
         [Description("Say hello")]
         public string Greet()
@@ -52,11 +52,11 @@ namespace Amg.GetOpt.Test
         }
     }
 
-    enum Verbosity
+    enum Fruit
     { 
-        Quiet,
-        Error,
-        Detailed
+        Apple,
+        Orange,
+        Pear
     }
 
 }

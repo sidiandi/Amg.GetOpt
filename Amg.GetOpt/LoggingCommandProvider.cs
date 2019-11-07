@@ -69,10 +69,12 @@ namespace Amg.GetOpt
             }
         }
 
-        public IEnumerable<IOption> Options() => next.Options()
+        public IEnumerable<IOption> Options => next.Options
             .Select(_ => new Option(_, logger));
 
-        public IEnumerable<ICommand> Commands() => next.Commands()
+        public IEnumerable<ICommand> Commands => next.Commands
             .Select(_ => new Command(_, logger));
+
+        public int? OnOptionsParsed(Parser parser) => next.OnOptionsParsed(parser);
     }
 }

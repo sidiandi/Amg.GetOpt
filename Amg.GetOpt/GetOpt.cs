@@ -14,18 +14,40 @@ namespace Amg.GetOpt
         public const int CommandFailed = 5;
     }
 
+    class WithStandardOptions
+    {
+        public WithStandardOptions(object commandObject)
+        {
+            this.CommandObject = commandObject;
+        }
+
+        [CommandProvider]
+        public StandardOptions StandardOptions { get; } = new StandardOptions();
+        [CommandProvider]
+        public object CommandObject { get; }
+    }
+
+
     public static class GetOpt
     {
         public static int Run(string[] args, object commandObject)
         {
-            var commandProvider = CommandProviderFactory.FromObject(commandObject);
+            var commandProvider = CommandProviderFactory.FromObject(new WithStandardOptions(commandObject));
             return Run(args, commandProvider);
         }
 
         public static int Run(string[] args, ICommandProvider commandProvider)
         {
             var parser = new Parser(commandProvider);
+
             parser.Parse(args);
+
+            var onOptionsParsedExitCode = commandProvider.OnOptionsParsed(parser);
+            if (onOptionsParsedExitCode != null)
+            {
+                return onOptionsParsedExitCode.Value;
+            }
+
             try
             {
                 var result = parser.Run().Result;
@@ -44,6 +66,15 @@ namespace Amg.GetOpt
                     {
                         Help.PrintHelpMessage(Console.Out, commandProvider);
                         exitCode = ExitCode.HelpDisplayed;
+                        return true;
+                    }
+                    if (exception is CommandLineException cex)
+                    {
+                        Console.Error.WriteLine($@"{cex.ErrorMessage}
+
+See {Help.Name} --help"
+);
+                        exitCode = ExitCode.CommandLineError;
                         return true;
                     }
                     else

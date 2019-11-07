@@ -4,8 +4,9 @@ namespace Amg.GetOpt
 {
     public interface ICommandProvider
     {
-        IEnumerable<IOption> Options();
-        IEnumerable<ICommand> Commands();
-    }
+        IEnumerable<IOption> Options { get; }
+        IEnumerable<ICommand> Commands { get; }
 
+        int? OnOptionsParsed(Parser parser);
+    }
 }

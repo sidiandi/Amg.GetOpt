@@ -7,24 +7,29 @@ namespace Amg.GetOpt
     {
         public static ICommand GetCommand(this ICommandProvider commandProvider, string name)
         {
-            return commandProvider.Commands().FindByName(_ => _.Name, name, "commands");
+            return commandProvider.Commands.FindByName(_ => _.Name, name, "commands");
+        }
+
+        public static ICommand? TryGetCommand(this ICommandProvider commandProvider, string name)
+        {
+            return commandProvider.Commands.FindByNameOrDefault(_ => _.Name, name);
         }
 
         public static IOption GetLongOption(this ICommandProvider commandProvider, string optionName)
         {
-            return commandProvider.Options().FindByName(_ => _.Long, optionName, "options");
+            return commandProvider.Options.FindByName(_ => _.Long, optionName, "options");
         }
 
         public static IOption GetShortOption(this ICommandProvider commandProvider, string optionName)
         {
-            return commandProvider.Options()
+            return commandProvider.Options
                 .Where(_ => _.Short != null)
                 .FindByName(_ => _.Short, optionName, "options");
         }
 
         public static ICommand? DefaultCommand(this ICommandProvider commandProvider)
         {
-            var c = commandProvider.Commands().ToList();
+            var c = commandProvider.Commands.ToList();
             if (c.Count == 0)
             {
                 return null;

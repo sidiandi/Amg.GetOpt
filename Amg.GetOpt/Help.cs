@@ -10,12 +10,14 @@ namespace Amg.GetOpt
 {
     public static class Help
     {
+        public static string Name => Assembly.GetEntryAssembly().GetName().Name;
+
         public static void PrintHelpMessage(TextWriter outputWriter, ICommandProvider commandProvider)
         {
-            var c = commandProvider.Commands();
-            var o = commandProvider.Options().OrderBy(_ => _.Long);
+            var c = commandProvider.Commands;
+            var o = commandProvider.Options.OrderBy(_ => _.Long);
 
-            var name = Assembly.GetEntryAssembly().GetName().Name;
+            var name = Name;
 
             var w = Wrap(outputWriter);
 
@@ -25,19 +27,18 @@ namespace Amg.GetOpt
 
             if (defaultCommand != null)
             {
-                w.WriteLine($"usage: {name}{optionsString}");
+                w.WriteLine($"usage: {name}{optionsString} {SyntaxWithoutCommand(defaultCommand)}");
                 w.WriteLine(defaultCommand.Description);
-                w.WriteLine();
                 c = c.Except(new[] { defaultCommand }).OrderBy(_ => _.Name);
             }
 
             if (c.Count() > 1)
             {
+                w.WriteLine();
                 w.WriteLine($"usage: {name}{optionsString} <command> [<args>]");
                 w.WriteLine("Run a command.");
                 w.WriteLine();
                 w.WriteLine("Commands:");
-                w.WriteLine();
                 Format(c.Select(_ => new { _.Syntax, _.Description })).Write(w);
             }
 
@@ -45,10 +46,12 @@ namespace Amg.GetOpt
             {
                 w.WriteLine();
                 w.WriteLine("Options:");
-                w.WriteLine();
                 Format(o.Select(_ => new { _.Syntax, _.Description })).Write(w);
             }
         }
+
+        static string SyntaxWithoutCommand(ICommand command)
+            => Regex.Replace(command.Syntax, @"^[^\s]+\s+", String.Empty);
 
         static IWritable Format<T>(IEnumerable<T> e) => Line(e);
 

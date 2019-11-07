@@ -17,11 +17,11 @@ namespace Amg.GetOpt.Test
 
         static void AssertCommands(ICommandProvider p)
         {
-            Assert.That(p.Commands().Count(), Is.EqualTo(1));
-            var c = p.Commands().First();
+            Assert.That(p.Commands.Count(), Is.EqualTo(1));
+            var c = p.Commands.First();
             Assert.That(c.Name, Is.EqualTo("command"));
-            Assert.That(p.Options().Count(), Is.EqualTo(1));
-            var o = p.Options().First();
+            Assert.That(p.Options.Count(), Is.EqualTo(1));
+            var o = p.Options.First();
             Assert.That(o.Long, Is.EqualTo("option"));
             Assert.That(o.Short, Is.EqualTo("o"));
         }

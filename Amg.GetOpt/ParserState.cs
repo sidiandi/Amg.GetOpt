@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Amg.GetOpt
 {
-    public sealed class ParserState
+    public sealed class ParserState : IEquatable<ParserState>
     {
         private readonly ArraySegment<string> args;
         private int pos;
@@ -70,6 +70,13 @@ namespace Amg.GetOpt
             return i == pos + args.Offset
                 ? "=> "
                 : "   ";
+        }
+
+        public bool Equals(ParserState other)
+        {
+            return
+                this.pos == other.pos
+                && this.args.SequenceEqual(other.args);
         }
     }
 }

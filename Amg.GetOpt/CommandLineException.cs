@@ -31,5 +31,10 @@ namespace Amg.GetOpt
         protected CommandLineException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
+
+        public string ErrorMessage => $@"{Message}
+
+{Args}
+";
     }
 }
