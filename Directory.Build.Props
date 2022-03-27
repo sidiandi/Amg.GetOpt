@@ -16,6 +16,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="GitVersion.MsBuild" Version="5.9.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 		<PackageReference Include="SonarAnalyzer.CSharp" Version="7.17.0.9346">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
