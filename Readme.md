@@ -6,33 +6,32 @@ Library for easy implementation of [getopt](https://www.gnu.org/software/libc/ma
 
 Install package via nuget
 ````
-nuget install-package Amg.GetOpt
+dotnet add package Amg.GetOpt
 ````
 
-Decorate your public methods with the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute?view=netcore-3.0) attribute to turn them into commands.
-
-Decorate your public properties with the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute?view=netcore-3.0) attribute to turn them into options.
+Decorate the public methods and properties you want to expose via the command line with 
+the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.descriptionattribute) attribute.
 
 ```csharp
-    class Program
-    {
-        static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+class Program
+{
+	static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
 
-        [Description("Add two numbers.")]
-        public int Add(int a, int b)
-        {
-            return a + b;
-        }
+	[Description("Add two numbers.")]
+	public int Add(int a, int b)
+	{
+		return a + b;
+	}
 
-        [Description("Greet the world.")]
-        public void Greet()
-        {
-            Console.WriteLine($"Hello, {Name}.");
-        }
+	[Description("Greet the world.")]
+	public void Greet()
+	{
+		Console.WriteLine($"Hello, {Name}.");
+	}
 
-        [Short("n"), Description("Name to greet")]
-        public string Name { get; set; } = "world";
-    }
+	[Short("n"), Description("Name to greet")]
+	public string Name { get; set; } = "world";
+}
 ```
 
 Run the *greet* command:
@@ -57,6 +56,28 @@ Options:
 -n|--name <string> : Name to greet
 ```
 
-
-
 See [the full example here](example/Program.cs).
+
+## Use without `[Description]` Attribute.
+
+If you do not use the `[Description]` attribute at all, the library will expose all `public` methods and properties.
+
+```csharp
+class Program
+{
+	static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+
+	public int Add(int a, int b)
+	{
+		return a + b;
+	}
+
+	public void Greet()
+	{
+		Console.WriteLine($"Hello, {Name}.");
+	}
+
+	public string Name { get; set; } = "world";
+}
+```
+
