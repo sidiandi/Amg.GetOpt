@@ -63,21 +63,27 @@ See [the full example here](example/Program.cs).
 If you do not use the `[Description]` attribute at all, the library will expose all `public` methods and properties.
 
 ```csharp
+using Amg.GetOpt;
+using System;
+
+namespace example;
+
 class Program
 {
-	static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+    static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
 
-	public int Add(int a, int b)
-	{
-		return a + b;
-	}
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
 
-	public void Greet()
-	{
-		Console.WriteLine($"Hello, {Name}.");
-	}
+    public void Greet()
+    {
+        Console.WriteLine($"Hello, {Name}.");
+    }
 
-	public string Name { get; set; } = "world";
+    public string Name { get; set; } = "world";
 }
 ```
 
+See [the full example here](example-no-attributes/Program.cs).
