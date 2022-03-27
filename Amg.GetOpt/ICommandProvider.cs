@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace Amg.GetOpt
-{
-    public interface ICommandProvider
-    {
-        IEnumerable<IOption> Options { get; }
-        IEnumerable<ICommand> Commands { get; }
+namespace Amg.GetOpt;
 
-        int? OnOptionsParsed(Parser parser);
-    }
+public interface ICommandProvider
+{
+    IEnumerable<IOption> Options { get; }
+    IEnumerable<ICommand> Commands { get; }
+
+    int? OnOptionsParsed(Parser parser);
 }

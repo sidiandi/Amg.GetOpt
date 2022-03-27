@@ -1,14 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Amg.GetOpt.Test
+namespace Amg.GetOpt.Test;
+
+internal class OnlyDefaultCommand
 {
-    internal class OnlyDefaultCommand
+    [Description("Greets the world.")]
+    public void Greet()
     {
-        [Description("Greets the world.")]
-        public void Greet()
-        {
-            Console.WriteLine("Hello, world.");
-        }
+        Console.WriteLine("Hello, world.");
     }
 }

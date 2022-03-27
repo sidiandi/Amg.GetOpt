@@ -3,92 +3,91 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Amg.GetOpt.Test")]
 
-namespace Amg.GetOpt
+namespace Amg.GetOpt;
+
+public static class ExitCode
 {
-    public static class ExitCode
+    public const int Success = 0;
+    public const int UnknownError = 1;
+    public const int HelpDisplayed = 3;
+    public const int CommandLineError = 4;
+    public const int CommandFailed = 5;
+}
+
+class WithStandardOptions
+{
+    public WithStandardOptions(object commandObject)
     {
-        public const int Success = 0;
-        public const int UnknownError = 1;
-        public const int HelpDisplayed = 3;
-        public const int CommandLineError = 4;
-        public const int CommandFailed = 5;
+        this.CommandObject = commandObject;
     }
 
-    class WithStandardOptions
-    {
-        public WithStandardOptions(object commandObject)
-        {
-            this.CommandObject = commandObject;
-        }
+    [CommandProvider]
+    public StandardOptions StandardOptions { get; } = new StandardOptions();
+    [CommandProvider]
+    public object CommandObject { get; }
+}
 
-        [CommandProvider]
-        public StandardOptions StandardOptions { get; } = new StandardOptions();
-        [CommandProvider]
-        public object CommandObject { get; }
+
+public static class GetOpt
+{
+    public static int Run(string[] args, object commandObject)
+    {
+        var commandProvider = CommandProviderFactory.FromObject(new WithStandardOptions(commandObject));
+        return Run(args, commandProvider);
     }
 
-
-    public static class GetOpt
+    public static int Run(string[] args, ICommandProvider commandProvider)
     {
-        public static int Run(string[] args, object commandObject)
+        var parser = new Parser(commandProvider);
+
+        parser.Parse(args);
+
+        var onOptionsParsedExitCode = commandProvider.OnOptionsParsed(parser);
+        if (onOptionsParsedExitCode != null)
         {
-            var commandProvider = CommandProviderFactory.FromObject(new WithStandardOptions(commandObject));
-            return Run(args, commandProvider);
+            return onOptionsParsedExitCode.Value;
         }
 
-        public static int Run(string[] args, ICommandProvider commandProvider)
+        try
         {
-            var parser = new Parser(commandProvider);
-
-            parser.Parse(args);
-
-            var onOptionsParsedExitCode = commandProvider.OnOptionsParsed(parser);
-            if (onOptionsParsedExitCode != null)
+            var result = parser.Run().Result;
+            foreach (var i in result)
             {
-                return onOptionsParsedExitCode.Value;
+                Console.WriteLine(i);
             }
+        }
+        catch (AggregateException aex)
+        {
+            int exitCode = ExitCode.Success;
 
-            try
+            aex.Handle(exception =>
             {
-                var result = parser.Run().Result;
-                foreach (var i in result)
+                if (exception is NoDefaultCommandException)
                 {
-                    Console.WriteLine(i);
+                    Help.PrintHelpMessage(Console.Out, commandProvider);
+                    exitCode = ExitCode.HelpDisplayed;
+                    return true;
                 }
-            }
-            catch (AggregateException aex)
-            {
-                int exitCode = ExitCode.Success;
-
-                aex.Handle(exception =>
+                if (exception is CommandLineException cex)
                 {
-                    if (exception is NoDefaultCommandException)
-                    {
-                        Help.PrintHelpMessage(Console.Out, commandProvider);
-                        exitCode = ExitCode.HelpDisplayed;
-                        return true;
-                    }
-                    if (exception is CommandLineException cex)
-                    {
-                        Console.Error.WriteLine($@"{cex.ErrorMessage}
+                    Console.Error.WriteLine($@"{cex.ErrorMessage}
 
 See {Help.Name} --help"
 );
-                        exitCode = ExitCode.CommandLineError;
-                        return true;
-                    }
-                    else
-                    {
-                        Console.Error.WriteLine(exception);
-                        exitCode = ExitCode.UnknownError;
-                        return true;
-                    }
-                });
+                    exitCode = ExitCode.CommandLineError;
+                    return true;
+                }
+                else
+                {
+                    Console.Error.WriteLine(exception);
+                    exitCode = ExitCode.UnknownError;
+                    return true;
+                }
+            });
 
-                return exitCode;
-            }
-
-            return ExitCode.Success;
+            return exitCode;
         }
+
+        return ExitCode.Success;
     }
 }

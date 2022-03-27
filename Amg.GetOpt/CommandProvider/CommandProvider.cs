@@ -59,8 +59,10 @@ namespace Amg.GetOpt
             {
                 if (commands == null)
                 {
-                    commands = commandObject.GetType().GetMethods()
+                    var type = commandObject.GetType();
+                    commands = type.GetMethods()
                         .Where(IsCommand)
+                        .Where(_ => _.DeclaringType == type)
                         .Select(_ => new Command(commandObject, _))
                         .Concat(CommandProviders.SelectMany(_ => _.Commands))
                         .Distinct(_ => _.Name);
@@ -69,9 +71,28 @@ namespace Amg.GetOpt
             }
         }
 
-        static bool IsCommand(MethodInfo m)
+        public static bool IsCommand(MethodInfo m)
         {
-            return m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>() != null;
+            return HasDescriptionAttribute(m) ||
+                (!HasDescriptionAttributes(m.DeclaringType) && m.IsPublic && !m.IsSpecialName);
+        }
+
+        static bool IsOption(PropertyInfo p)
+        {
+            return HasDescriptionAttribute(p) ||
+                !HasDescriptionAttributes(p.DeclaringType) && p.SetMethod is { } && p.SetMethod.IsPublic;
+        }
+
+        internal static bool HasDescriptionAttribute(PropertyInfo p)
+            => p.GetCustomAttribute<DescriptionAttribute>() != null;
+
+        internal static bool HasDescriptionAttribute(MethodInfo m)
+            => m.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>() != null;
+
+        internal static bool HasDescriptionAttributes(Type type)
+        {
+            return type.GetMethods().Any(_ => HasDescriptionAttribute(_)) ||
+                type.GetProperties().Any(_ => HasDescriptionAttribute(_));
         }
 
         IEnumerable<IOption>? options = null;
@@ -104,11 +125,6 @@ namespace Amg.GetOpt
 
             return CommandProviders.Select(_ => _.OnOptionsParsed(parser))
                 .FirstOrDefault(_ => _ != null);
-        }
-
-        static bool IsOption(PropertyInfo p)
-        {
-            return p.GetCustomAttribute<DescriptionAttribute>() != null;
         }
     }
 }

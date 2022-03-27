@@ -10,44 +10,47 @@ namespace Amg.Extensions
     /// </summary>
     internal static class TextFormatExtensions
     {
-        public static TextWriter Dump(this TextWriter w, object x)
+        public static TextWriter Dump(this TextWriter w, object? x)
         {
-            var type = x.GetType();
-            if (type.IsPrimitive || type.Equals(typeof(string)))
+            if (x is { })
             {
-                w.WriteLine(x.ToString());
-            }
-            else if (x is System.Collections.IEnumerable enumerable)
-            {
-                foreach (var i in enumerable.Cast<object?>()
-                    .Select((item, index) => new {index, item}))
-                { 
-                    w.Write($"[{i.index}] ");
-                    w.Dump(i.item);
-                }
-            }
-            else
-            {
-                foreach (var p in type.GetProperties())
+                var type = x.GetType();
+                if (type.IsPrimitive || type.Equals(typeof(string)))
                 {
-                    try
+                    w.WriteLine(x.ToString());
+                }
+                else if (x is System.Collections.IEnumerable enumerable)
+                {
+                    foreach (var i in enumerable.Cast<object?>()
+                        .Select((item, index) => new { index, item }))
                     {
-                        var stringRepresentation = p.GetValue(x, new object[] { }).SafeToString();
-                        if (stringRepresentation.SplitLines().Skip(1).Any())
+                        w.Write($"[{i.index}] ");
+                        w.Dump(i.item);
+                    }
+                }
+                else
+                {
+                    foreach (var p in type.GetProperties())
+                    {
+                        try
                         {
-                            w.WriteLine($@"{p.Name}:
+                            var stringRepresentation = p.GetValue(x, new object[] { }).SafeToString();
+                            if (stringRepresentation.SplitLines().Skip(1).Any())
+                            {
+                                w.WriteLine($@"{p.Name}:
 {new string('v', 80)}
 {stringRepresentation}
 {new string('^', 80)}");
+                            }
+                            else
+                            {
+                                w.WriteLine($"{p.Name}: {stringRepresentation}");
+                            }
                         }
-                        else
+                        catch
                         {
-                            w.WriteLine($"{p.Name}: {stringRepresentation}");
+                            // errors during output formatting can be ignored
                         }
-                    }
-                    catch
-                    {
-                        // errors during output formatting can be ignored
                     }
                 }
             }
@@ -159,7 +162,7 @@ namespace Amg.Extensions
             var part1MaxLines = skipAt;
             var part2MaxLines = maxLines - skipAt;
 
-            while(e.MoveNext())
+            while (e.MoveNext())
             {
                 part1.Add(e.Current);
                 if (part1.Count >= part1MaxLines)
@@ -170,7 +173,7 @@ namespace Amg.Extensions
 
             int skipped = 0;
 
-            while(e.MoveNext())
+            while (e.MoveNext())
             {
                 part2.Add(e.Current);
                 if (part2.Count >= part2MaxLines)
@@ -246,12 +249,12 @@ namespace Amg.Extensions
 
         static string MetricImpl(this double x, string[] prefixes, int digits = 3)
         {
-            var i = (int)(4 - (Math.Log10(Math.Abs(x))-2) / 3);
+            var i = (int)(4 - (Math.Log10(Math.Abs(x)) - 2) / 3);
             if (i >= prefixes.Length && i < prefixes.Length + 2)
             {
                 i = prefixes.Length - 1;
             }
-            if (i<0 || i>= prefixes.Length)
+            if (i < 0 || i >= prefixes.Length)
             {
                 return x.ToString("E" + digits.ToString());
             }

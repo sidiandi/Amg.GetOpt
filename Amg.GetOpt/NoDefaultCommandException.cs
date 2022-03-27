@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Amg.GetOpt
+namespace Amg.GetOpt;
+
+[Serializable]
+public class NoDefaultCommandException : Exception
 {
-    [Serializable]
-    public class NoDefaultCommandException : Exception
+    public NoDefaultCommandException()
     {
-        public NoDefaultCommandException()
-        {
-        }
+    }
 
-        public NoDefaultCommandException(string message) : base(message)
-        {
-        }
+    public NoDefaultCommandException(string message) : base(message)
+    {
+    }
 
-        public NoDefaultCommandException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    public NoDefaultCommandException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 
-        protected NoDefaultCommandException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    protected NoDefaultCommandException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
     }
 }

@@ -81,7 +81,7 @@ namespace Amg.GetOpt
                 ? String.Empty
                 : $": {Parser.LongNameForCsharpIdentifier(type.Name)}";
 
-        static string ParameterSyntax(ParameterInfo p)
+        static string GetSyntax(ParameterInfo p)
         {
             var s = $"{Parser.LongNameForCsharpIdentifier(p.Name)}{TypeSyntax(p.ParameterType)}";
             return p.HasDefaultValue 
@@ -89,9 +89,10 @@ namespace Amg.GetOpt
                 : s.Quote("<>");
         }
 
-        public string Syntax => $"{Name} {this.Method.GetParameters().Select(ParameterSyntax).Join(" ")}";
+        public string Syntax => new[] { Name }.Concat(Method.GetParameters().Select(GetSyntax)).Join(" ");
+        public string ParameterSyntax => Method.GetParameters().Select(GetSyntax).Join(" ");
 
-        public string Description => Method.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
+        public string? Description => Method.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?.Description;
 
         public bool IsDefault => this.Method.Has<DefaultAttribute>();
     }

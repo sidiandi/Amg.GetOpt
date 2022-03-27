@@ -117,7 +117,7 @@ namespace Amg.GetOpt
 
         public string Syntax => $"{ShortSyntax}{Parser.longOptionPrefix}{Long} {ValueSyntax}";
 
-        public string Description => Property.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>().Description;
+        public string? Description => Property.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>()?.Description;
 
         public override string ToString()
             => $"{Parser.longOptionPrefix}{Long}";

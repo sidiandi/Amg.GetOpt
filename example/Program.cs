@@ -2,25 +2,24 @@
 using System;
 using System.ComponentModel;
 
-namespace example
+namespace example;
+
+class Program
 {
-    class Program
+    static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+
+    [Description("Add two numbers.")]
+    public int Add(int a, int b)
     {
-        static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
-
-        [Description("Add two numbers.")]
-        public int Add(int a, int b)
-        {
-            return a + b;
-        }
-
-        [Description("Greet the world.")]
-        public void Greet()
-        {
-            Console.WriteLine($"Hello, {Name}.");
-        }
-
-        [Short('n'), Description("Name to greet")]
-        public string Name { get; set; } = "world";
+        return a + b;
     }
+
+    [Description("Greet the world.")]
+    public void Greet()
+    {
+        Console.WriteLine($"Hello, {Name}.");
+    }
+
+    [Short('n'), Description("Name to greet")]
+    public string Name { get; set; } = "world";
 }
