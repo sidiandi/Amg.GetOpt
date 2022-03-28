@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Amg.GetOpt.Test")]
@@ -30,11 +31,21 @@ class WithStandardOptions
 
 public static class GetOpt
 {
-    public static int Run(string[] args, object commandObject)
+    public static int Main(string[] args)
+    {
+        var entryAssembly = Assembly.GetEntryAssembly();
+        var program = Activator.CreateInstance(entryAssembly.EntryPoint.DeclaringType);
+        return Main(args, program);
+    }
+
+    public static int Main(string[] args, object commandObject)
     {
         var commandProvider = CommandProviderFactory.FromObject(new WithStandardOptions(commandObject));
         return Run(args, commandProvider);
     }
+
+    [Obsolete("Use Main()")]
+    public static int Run(string[] args, object commandObject) => Main(args, commandObject);
 
     public static int Run(string[] args, ICommandProvider commandProvider)
     {

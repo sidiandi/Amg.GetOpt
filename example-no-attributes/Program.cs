@@ -1,11 +1,10 @@
-﻿using Amg.GetOpt;
-using System;
+﻿using System;
 
 namespace example;
 
 class Program
 {
-    static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+    static int Main(string[] args) => Amg.GetOpt.GetOpt.Main(args);
 
     public int Add(int a, int b)
     {

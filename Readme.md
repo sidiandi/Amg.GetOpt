@@ -15,7 +15,7 @@ the [System.ComponentModel.Description](https://docs.microsoft.com/en-us/dotnet/
 ```csharp
 class Program
 {
-	static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+    static int Main(string[] args) => Amg.GetOpt.GetOpt.Main(args);
 
 	[Description("Add two numbers.")]
 	public int Add(int a, int b)
@@ -63,14 +63,13 @@ See [the full example here](example/Program.cs).
 If you do not use the `[Description]` attribute at all, the library will expose all `public` methods and properties.
 
 ```csharp
-using Amg.GetOpt;
 using System;
 
 namespace example;
 
 class Program
 {
-    static void Main(string[] args) => Amg.GetOpt.GetOpt.Run(args, new Program());
+    static int Main(string[] args) => Amg.GetOpt.GetOpt.Main(args);
 
     public int Add(int a, int b)
     {
@@ -87,3 +86,21 @@ class Program
 ```
 
 See [the full example here](example-no-attributes/Program.cs).
+
+Output: 
+
+```
+$ example-no-attributes
+usage: example-no-attributes [options] <command> [<args>]
+Run a command.
+
+Commands:
+add <a: int32> <b: int32>
+greet
+
+Options:
+-h|--help : Print help and exit.
+--name <string>
+-v|--verbosity <quiet|minimal|normal|detailed> : Logging verbosity
+--version : Print version and exit.
+```
