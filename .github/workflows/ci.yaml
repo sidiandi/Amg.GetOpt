@@ -10,9 +10,11 @@ jobs:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@master
+      with:
+        fetch-depth: 0
 
     - name: Run build.cmd script
-      run: ./build.cmd pack
+      run: ./build.cmd test pack
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
